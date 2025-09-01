@@ -1,0 +1,38 @@
+# Entorno virtual
+venv/
+ENV/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Distribución / build
+build/
+dist/
+*.egg-info/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs y bases de datos locales
+*.log
+*.sqlite3
+*.db
+*.sqlite
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Jupyter / notebooks
+.ipynb_checkpoints
+
+# Archivos temporales
+*.tmp
+*.swp
