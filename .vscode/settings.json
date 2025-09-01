@@ -1,0 +1,8 @@
+{
+    "python.defaultInterpreterPath": "C:\\Users\\Archivos\\portfolio things\\FastAPI-c1\\vtasks\\Scripts\\python.exe",
+    "python.analysis.extraPaths": [
+        "C:\\Users\\Archivos\\portfolio things\\FastAPI-c1\\vtasks\\tasks"
+    ],
+    "python.terminal.activateEnvironment": true
+    
+}

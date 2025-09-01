@@ -1,0 +1,27 @@
+#1
+activar entorno virtual
+cd C:\Users\Archivos\portfolio things\FastAPI-c1\vtasks\Scripts
+actívate
+
+#2
+pip install fastapi uvicorn (instalación de FastAPI y uvicorn)
+pip uninstall fastapi (en caso de que queramos desinstalar un paquete)
+
+#3
+pip freeze (listado de paquetes)
+
+#4
+pip freeze > requirements.txt (archivo .txt con los paquetes necesarios)
+
+#5
+pip install -r requirements.txt
+
+------------
+
+en powershell
+
+cd C:\Users\Archivos\portfolio things\FastAPI-c1\vtasks\Scripts
+.\Activate.ps1
+
+------------------------
+http://127.0.0.1:8000/docs
