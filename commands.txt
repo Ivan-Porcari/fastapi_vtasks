@@ -1,7 +1,7 @@
 #1
 activar entorno virtual
 cd C:\Users\Archivos\portfolio things\FastAPI-c1\vtasks\Scripts
-actívate
+activate
 
 #2
 pip install fastapi uvicorn (instalación de FastAPI y uvicorn)
@@ -24,4 +24,4 @@ cd C:\Users\Archivos\portfolio things\FastAPI-c1\vtasks\Scripts
 .\Activate.ps1
 
 ------------------------
-http://127.0.0.1:8000/docs
+http://127.0.0.1:8000/docs para ver la documentacion

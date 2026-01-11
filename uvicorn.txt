@@ -8,7 +8,7 @@ uvicorn api:app -- port 8001 (en caso de que el 8000 esté ocupado por ejemplo)
 #3 para recargar la página cuando realizamos cambios a nivel de archivo
 también nos sirve para ver en el navegador constantemente los cambios que realizamos
 sin necesidad de detener y volver a correr el servicio
-uvicorn api:app -- reload
+uvicorn api:app --reload
 
 #4 Las funciones --port -- reload son combinables
 
