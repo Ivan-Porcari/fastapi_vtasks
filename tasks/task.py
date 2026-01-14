@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body
-from .models import StatusType
+from .models import Task
 
 task_router = APIRouter() #creamos la instancia del router 
 task_list = []
@@ -8,20 +8,19 @@ task_list = []
 def get(): 
     return {"tasks" : task_list} #devolvemos la lista completa de listas
 
-@task_router.post('/') #quitamos el argumento para poder utilizar la clase Body    
-def add(task:str = Body()): #al utilizar Body protegemos el path y la información viaja en el cuerpo de la petición
-    task_list.append({
-        'task' : task,
-        'status' : StatusType.PENDING, #status por defecto como pendiente porque no tiene lógica agregar una tarea que se haya realizado segun el negocio
-        })
+@task_router.post('/')     
+def add(task: Task): #importamos directamente la clase Task
+    task_list.append(task)
     return {"tasks" : task_list}
 
 @task_router.put('/') #el tipo de CRUD se especifica en la instancia
-def update(index:int, task:str = Body(), status: StatusType = Body()): #este nombre se puede cambiar hace referencia a la función solamente
-    task_list[index] = {
-        "task" : task,
-        "status" : status 
-    }
+def update(index:int, task: Task): 
+        # task_list[index] = { #este esquema es util si hay que aplicar validaciones
+    #     "task" : task.name,
+    #     "status" : task.status,
+    #     "description" : task.description 
+    # }
+    task_list[index] = task
     return {"tasks" : task_list}
 
 @task_router.delete('/')
