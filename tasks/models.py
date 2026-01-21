@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel, ValidationError, field_validator, Field, EmailStr, HttpUrl
-from typing import Optional 
+from typing import Optional, List
 
 class StatusType(str, Enum): #creamos la clase con los valores disponibles      
     DONE = 'done'
@@ -39,6 +39,33 @@ class Task(MyBaseModel): #anidamos las relaciones de task con category y user
     status: StatusType
     category : Category
     user : User
+    #tags: List[str] = []
+    tags: set[str] = set() #se podría utilizar éste enfoque para evitar valores duplicados
+
+    model_config = { #con model_config establecemos los datos de prueba con los que iniciamos en la documentacion
+        "json_schema_extra" : {
+            "examples" : [
+                {
+                    "id" : 74,
+                    "name" : "Studying",
+                    "description" : "A lot",
+                    "status" : StatusType.PENDING,
+                    "tag" : ["tag1,tag2"],
+                    "category" : {
+                        "id" : 75,
+                        "name" : "Categoria 1"
+                    },
+                    "user" : {
+                        "id" : 74,
+                        "name" : "Ivan",
+                        "surname" : "Porcari",
+                        "email" : "admin@admin.com.ar",
+                        "website" : "https://www.linkedin.com/in/ivan-porcari/"  
+                    }
+                }
+            ] 
+        }
+    }
 
     @field_validator('name')
     def name_alphanumeric_and_whitespaces(cls, v):
