@@ -2,6 +2,8 @@
 venv/
 ENV/
 env/
+vtasks/*
+!vtasks/tasks/
 
 # Python
 __pycache__/
