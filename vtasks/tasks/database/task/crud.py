@@ -4,9 +4,10 @@
 from sqlalchemy.orm import Session
 
 from tasks.database import models
+from tasks.database.pagination import paginate, PageParams
 from tasks.schemes import Task
 
-def getById(db: Session, id: int):
+def getById(id: int,db: Session):
     
     # task = db.query(models.Task).filter(models.Task.id == id).first()
     task = db.query(models.Task).get(id)
@@ -24,4 +25,33 @@ def create(task: Task, db: Session):
     db.commit()
     db.refresh(taskdb)
     return taskdb
+
+def update(id: int, task: Task, db: Session):
+    taskdb = getById(id, db)
+    
+    if taskdb is None:  # evita AttributeError
+        return None
+        
+    taskdb.name = task.name
+    taskdb.description = task.description
+    taskdb.status = task.status
+    db.add(taskdb)
+    db.commit()
+    db.refresh(taskdb)
+    return taskdb
+
+def delete(id: int, db: Session):
+    taskdb = getById(id, db)
+    
+    if taskdb is None:  # evita AttributeError
+        return None
+        
+    db.delete(taskdb)
+    db.commit()
+
+def pagination(page:int, size: int, db: Session):
+    pageParams = PageParams()
+    # pageParams.page = page
+    # pageParams.size = size
+    return paginate(pageParams , db.query(models.Task), Task)
 

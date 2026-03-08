@@ -82,6 +82,8 @@ def add(task: Task = Body(
         }
     }
 ), db: Session = Depends(get_database_session)):
+    
+    # crud.create(Task(name='Test1', description='Description1', status= StatusType.DONE), db=db)
 
     #verifica que el indice exista
     if task in task_list:
@@ -91,40 +93,55 @@ def add(task: Task = Body(
     task_list.append(task)
     return { "tasks": task_list }
 
-@task_router.put("/",status_code=status.HTTP_200_OK)
-def update(index: int, task: Task = Body(
-     example= {
-                "id" : 123,
-                "name": "Salvar al mundo 2",
-                "description": "Hola Mundo Desc",
-                "status": StatusType.PENDING,
-                "tag":["tag 1", "tag 2"],
-                "category": {
-                    "id":1234,
-                    "name":"Cate 1"
-                },
-                "user": {
-                    "id":12,
-                    "name":"Andres",
-                    "email":"admin@admin.com",
-                    "surname":"Cruz",
-                    "website":"http://desarrollolibre.net",
-                }
-            }
-), db: Session = Depends(get_database_session)):
-    # task_list[index] = {
-    #     "task" : task.name,
-    #     "status" : task.status,
-    #     "description" : task.description,
-    # }
+# @task_router.put("/",status_code=status.HTTP_200_OK)
+# def update(index: int, task: Task = Body(
+#      example= {
+#                 "id" : 123,
+#                 "name": "Salvar al mundo 2",
+#                 "description": "Hola Mundo Desc",
+#                 "status": StatusType.PENDING,
+#                 "tag":["tag 1", "tag 2"],
+#                 "category": {
+#                     "id":1234,
+#                     "name":"Cate 1"
+#                 },
+#                 "user": {
+#                     "id":12,
+#                     "name":"Andres",
+#                     "email":"admin@admin.com",
+#                     "surname":"Cruz",
+#                     "website":"http://desarrollolibre.net",
+#                 }
+#             }
+# ), db: Session = Depends(get_database_session)):
+#     # task_list[index] = {
+#     #     "task" : task.name,
+#     #     "status" : task.status,
+#     #     "description" : task.description,
+#     # }
 
-    #verifica que el indice exista
-    if len(task_list) <= index:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail='Task ID does not exist')
+#     #verifica que el indice exista
+#     if len(task_list) <= index:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+#                             detail='Task ID does not exist')
 
-    task_list[index] = task
-    return { "tasks": task_list }
+#     task_list[index] = task
+#     return { "tasks": task_list }
+
+@task_router.put("/", status_code=status.HTTP_200_OK)
+def update(id: int, task: Task = Body(), db: Session = Depends(get_database_session)):
+    
+    # Verificar que la tarea existe
+    db_task = crud.getById(id, db=db)
+    if db_task is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Task ID does not exist'
+        )
+
+    # Actualizar en la base de datos
+    updated_task = crud.update(id, task, db=db)
+    return {"task": updated_task}
 
 @task_router.delete('/', status_code=status.HTTP_200_OK)
 def delete(index:int, db: Session = Depends(get_database_session)):
