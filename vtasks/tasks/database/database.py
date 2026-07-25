@@ -1,19 +1,17 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "mysql+mysqlconnector://root:root@localhost:3306/tasks" #el conectar va a emplear segun el modelo utilizado
+DATABASE_URL = "mysql+mysqlconnector://sail:password@localhost:3306/testing"
 engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine) #utilizamos a sesion para hacer la conexión y realizar operaciones sobre la db
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base() #la utilizamos para crear modelos y tablas en base a ellos    
+Base = declarative_base()
 
 def get_database_session():
     try:
         db = SessionLocal()
-        print("INIT DB")
-        yield db #a diferencia del return cuando devolvemos este resultado lo que esté por debajo no se ejecuta
+        yield db
         #return db
-    finally: #el finally siempre se va a ejecutar pero ahí muere la función cuando la función que envía la petición a la DB retorne su respuesta
-        print("END DB")
+    finally:
         db.close()

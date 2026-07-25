@@ -1,155 +1,59 @@
-from fastapi import APIRouter, Body, status, HTTPException, Depends
-from .schemes import Task, StatusType
+from fastapi import APIRouter, Depends, Body, Path, status
 from sqlalchemy.orm import Session
 
-from tasks.database.database import get_database_session
-from tasks.database.task import crud
-# from tasks.database import models
+from database.database import get_database_session
+from database.task import crud
 
-task_router = APIRouter() #creamos la instancia del router 
-task_list = []
+from schemes import Task, TaskRead, TaskWrite
+from dataexample import taskWithORM
 
-@task_router.get('/', status_code=status.HTTP_200_OK)
-def get(db: Session = Depends(get_database_session)): 
+task_router = APIRouter()
 
-    print(crud.getById(db=db, id =1).id)
-    return {"tasks" : task_list} #devolvemos la lista completa de listas
+@task_router.get("/",status_code=status.HTTP_200_OK)
+def get(db: Session = Depends(get_database_session)):
+    # SELECT * FROM tasks WHERE id = 1
+    # task = crud.getById(db=db,id=1)
+    
+    # print(task.user.website)
+    # print(db.query(models.Category).get(2).tasks[0])    
+    # print(db.query(models.User).get(1).tasks)    
+    # print(crud.getAll(db=db)[1].name)
+    # crud.create(Task(name='Test',description='Descr', status= StatusType.DONE, category_id=1, user_id=1),db=db)
+    # crud.update(1,Task(name='HOla MUndo 2',description='Descr', status= StatusType.DONE, category_id=2, user_id=1),db=db)
+    # print(crud.pagination(1,2,db))
+    
+    return { "tasks": crud.getAll(db) }
+    # return { "tasks": [ TaskRead.from_orm(task) for task in crud.getAll(db) ] }
+
+@task_router.get("/{id}",status_code=status.HTTP_200_OK)
+def get(id: int = Path(ge=1), db: Session = Depends(get_database_session)):
+    return crud.getById(id, db)
+    # return Task.from_orm(crud.getById(id, db))
 
 @task_router.post("/",status_code=status.HTTP_201_CREATED)
-def add(task: Task = Body(
-    examples={
-        "normal1":{
-            "summary":"A normal example 1",
-            "description":"A normal example",
-            "value":{
-                "id" : 123,
-                "name": "Salvar al mundo",
-                "description": "Hola Mundo Desc",
-                "status": StatusType.PENDING,
-                "tag":["tag 1", "tag 2"],
-                "category": {
-                    "id":1234,
-                    "name":"Cate 1"
-                },
-                "user": {
-                    "id":12,
-                    "name":"Andres",
-                    "email":"admin@admin.com",
-                    "surname":"Cruz",
-                    "website":"http://desarrollolibre.net",
-                }
-            }
-        },
-        "normal2":{
-            "summary":"A normal example 2",
-            "description":"A normal example",
-            "value":{
-                "id" : 12,
-                "name": "Sacar la basura",
-                "description": "Hola Mundo Desc",
-                "status": StatusType.PENDING,
-                "tag":["tag 1"],
-                "category": {
-                    "id":1,
-                    "name":"Cate 1"
-                },
-                "user": {
-                    "id":12,
-                    "name":"Andres",
-                    "email":"admin@admin.com",
-                    "surname":"Cruz",
-                    "website":"http://desarrollolibre.net",
-                }
-            }
-        },
-        "invalid":{
-            "summary":"A invalid example 1",
-            "description":"A invalid example",
-            "value":{
-                "id" : 12,
-                "name": "Sacar la basura",
-                "description": "Hola Mundo Desc",
-                "status": StatusType.PENDING,
-                "tag":["tag 1"],
-                "user": {
-                    "id":12,
-                    "name":"Andres",
-                    "email":"admin@admin.com",
-                    "surname":"Cruz",
-                    "website":"http://desarrollolibre.net",
-                }
-            }
-        }
-    }
+def add(task: TaskWrite = Body(
+    examples=taskWithORM
 ), db: Session = Depends(get_database_session)):
-    
-    # crud.create(Task(name='Test1', description='Description1', status= StatusType.DONE), db=db)
 
-    #verifica que el indice exista
-    if task in task_list:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail='Task '+ task.name+' already exist')
+    # return { "tasks": TaskWrite.from_orm(crud.create(task,db=db)) }
+    return { "tasks": crud.create(task,db=db) }
 
-    task_list.append(task)
-    return { "tasks": task_list }
+@task_router.put("/{id}",status_code=status.HTTP_200_OK)
+def update(id: int = Path(ge=1), task: TaskWrite = Body(
+     examples=taskWithORM), db: Session = Depends(get_database_session)):
 
-# @task_router.put("/",status_code=status.HTTP_200_OK)
-# def update(index: int, task: Task = Body(
-#      example= {
-#                 "id" : 123,
-#                 "name": "Salvar al mundo 2",
-#                 "description": "Hola Mundo Desc",
-#                 "status": StatusType.PENDING,
-#                 "tag":["tag 1", "tag 2"],
-#                 "category": {
-#                     "id":1234,
-#                     "name":"Cate 1"
-#                 },
-#                 "user": {
-#                     "id":12,
-#                     "name":"Andres",
-#                     "email":"admin@admin.com",
-#                     "surname":"Cruz",
-#                     "website":"http://desarrollolibre.net",
-#                 }
-#             }
-# ), db: Session = Depends(get_database_session)):
-#     # task_list[index] = {
-#     #     "task" : task.name,
-#     #     "status" : task.status,
-#     #     "description" : task.description,
-#     # }
+    return { "task": crud.update(id, task, db) }
 
-#     #verifica que el indice exista
-#     if len(task_list) <= index:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-#                             detail='Task ID does not exist')
+@task_router.delete("/{id}",status_code=status.HTTP_200_OK)
+def delete(id: int = Path(ge=1), db: Session = Depends(get_database_session)):
+    crud.delete(id,db)
+    return { "tasks": crud.getAll(db) }
 
-#     task_list[index] = task
-#     return { "tasks": task_list }
+#******** tag
+@task_router.put("/tag/add/{id}",status_code=status.HTTP_200_OK)
+def tagAdd(id: int = Path(ge=1), idTag:int = Body(ge=1), db: Session = Depends(get_database_session)):
+    return crud.tagAdd(id,idTag,db)
 
-@task_router.put("/", status_code=status.HTTP_200_OK)
-def update(id: int, task: Task = Body(), db: Session = Depends(get_database_session)):
-    
-    # Verificar que la tarea existe
-    db_task = crud.getById(id, db=db)
-    if db_task is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Task ID does not exist'
-        )
-
-    # Actualizar en la base de datos
-    updated_task = crud.update(id, task, db=db)
-    return {"task": updated_task}
-
-@task_router.delete('/', status_code=status.HTTP_200_OK)
-def delete(index:int, db: Session = Depends(get_database_session)):
-
-    if len(task_list) <= index:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail = 'Task ID does not exist')
-    
-    del task_list[index] 
-    return {"tasks" : task_list}
-
+@task_router.delete("/tag/remove/{id}",status_code=status.HTTP_200_OK)
+def tagRemove(id: int = Path(ge=1), idTag:int = Body(ge=1), db: Session = Depends(get_database_session)):
+    return crud.tagRemove(id, idTag, db)

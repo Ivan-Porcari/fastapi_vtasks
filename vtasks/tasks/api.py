@@ -1,36 +1,49 @@
-from fastapi import FastAPI, APIRouter, Query, Path, Depends
+from fastapi import FastAPI, Depends, APIRouter, Query, Path
 from sqlalchemy.orm import Session
-from tasks.task import task_router #path absoluto 
-from tasks.myupload import upload_router
-from tasks.database.models import Task #Si hay mas modelos no hace falta referenciarlos ya que los levanta directamente a todos los que encuentre
-from tasks.database.database import Base, engine, get_database_session
 
-#from .task import task_router con el . delante de la importación le decimos que es relativo dentro del proyect path
+from task import task_router
+from myupload import upload_router
 
-app = FastAPI() #creación de la instancia 
+from database.database import Base, engine, get_database_session
+from database.models import Task
+
+app = FastAPI()
 router = APIRouter()
 
-Base.metadata.create_all(bind=engine) #esta conexión es sólo para crear tablas
+Base.metadata.create_all(bind=engine)
 
-@router.get('/hello') #decorador / route / access   
-def hello_world(db: Session = Depends(get_database_session)): #función 
-    return {"hello": "World"}
+@router.get('/hello')
+def hello_world(db: Session = Depends(get_database_session)):
+    return { "hello": "world" }
+
 
 @app.get("/e_page")
-def page(page:int = Query(1, ge = 1, le = 20, title ="Esta es la pagina que quieres ver"), size : int = Query(5, ge = 5, le = 20, title = "Cuantos registros por pagina")): #valor por defecto es 1
-    #size = cantidad de registros por pagina, estos argumentos viajan por la query string
-    return { "page" : page, "size" : size}
+def page(page: int = Query(1, ge=1, le=20, title='Esta es la pagina que quieres ver'), size: int = Query(5, ge=5, le=20, title='Cuantos registros por pagina')):
+    return { "page": page,"size": size }
 
-@app.get("/e_phone") # +34 111 12-34-56 ejemplo de expresión regular para normalizar entradas
-def phone(phone: str = Query(pattern=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d][\s\.-]?){6,7}$", example="+34 111 12-34-56" )):
- #example como parámetro de ejemplo en el dato primitivo
- return {"phone": phone}
+@app.get("/e_phone/") # +34 111 12-34-56
+def phone(phone: str = Query(regex=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d][\s\.-]?){6,7}$", example="+34 111 12-34-56")):
+    return {"phone": phone}
 
-@app.get("/ep_phon/{phone}") # Con path hacemos lo mismo pero lo indicamos por URL 
-def phone(phone: str = Path(pattern=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d][\s\.-]?){6,7}$" )):
- return {"phone": phone}
+@app.get("/ep_phone/{phone}") # +34 111 12-34-56
+def phone(phone: str = Path(regex=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d][\s\.-]?){6,7}$" , examples={
+    "normal": {
+        "summary":"A normal example",
+        "description":"A normal example",
+        "value" :
+            "+34 111 12-34-56"
+    },
+    "normal 2": {
+        "summary":"A normal example 2",
+        "description":"A normal example",
+        "value" :
+            "+34 123 12-34-58"
+        
+    }
+})):
+    return {"phone": phone}
 
 
-app.include_router(router) #indicamos las rutas que queremos incluir dentro de app
-app.include_router(task_router, prefix='/tasks') #prefijo para aclarar la raíz de las rutas
+app.include_router(router)
+app.include_router(task_router, prefix='/tasks')
 app.include_router(upload_router, prefix='/upload')

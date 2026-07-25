@@ -38,3 +38,6 @@ Thumbs.db
 # Archivos temporales
 *.tmp
 *.swp
+
+# Archivos md
+commands.md
